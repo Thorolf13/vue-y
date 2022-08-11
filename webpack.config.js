@@ -1,5 +1,5 @@
 const path = require('path');
-// const TypescriptDeclarationPlugin = require('typescript-declaration-webpack-plugin');
+const TypescriptDeclarationPlugin = require('typescript-declaration-webpack-plugin');
 
 
 module.exports = {
@@ -28,9 +28,9 @@ module.exports = {
     filename: 'index.js',
     libraryTarget: 'commonjs2',
   },
-  //  plugins: [
-  //   new TypescriptDeclarationPlugin()
-  // ]
+   plugins: [
+    new TypescriptDeclarationPlugin()
+  ]
   // optimization: {
   //   minimize: false
   // },

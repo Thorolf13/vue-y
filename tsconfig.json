@@ -11,5 +11,8 @@
     "strict": true,
     "outDir": "dist",
     "allowJs": true
-  }
+  },
+  "include": [
+    "src/**/*"
+  ]
 }
