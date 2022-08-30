@@ -16,6 +16,7 @@ main diffrence is vuey use class **with typing**
 ### store
 
 ```ts
+//my-store.ts
 class MyClass {
   a?: boolean;
 
@@ -31,19 +32,32 @@ const intialValue:MyClass = {};
 const myStore = new Store<MyClass>('storeName', intialValue);
 
 export { myStore, MyClass };
+
+
+//main.ts
+import VueY from 'vue-y';
+import { myStore } from './my-store.ts';
+
+Vue.use(VueY, {
+  stores: [
+    myStore
+  ]
+});
 ```
 
 #### custom getters and actions
 
 ```ts
 class MyStore extends Store<MyClass> {
-  getters = super.extendsGetters({
+  getters = {
+    ...super.getters,
     getA: () => {
       return this.get().a;
     }
-  })
+  }
 
-  actions = super.extendsActions({
+  actions = {
+    ...super.actions,
     setA: (value:boolean) => {
       this.setProperty('a', value);
     },
@@ -53,7 +67,7 @@ class MyStore extends Store<MyClass> {
         return result;
       });
     }
-  })
+  }
 }
 
 const intialValue:MyClass = {};
@@ -62,11 +76,15 @@ const myStore = new MyStore('storeName', intialValue);
 
 #### save and load
 
+stores can be automaticly saved in localStorage or sessionStorage
+
 ```ts
 const intialValue:MyClass = {};
 
 const myStore = new Store<MyClass>('storeName', intialValue, SaveStrategy.SESSION);
 ```
+
+custom serialization and deserialisation can be defined
 
 ```ts
 class MyStore extends Store<MyClass> {
@@ -105,5 +123,3 @@ export default Vue.extend({
   }
 });
 ```
-
-### directory
