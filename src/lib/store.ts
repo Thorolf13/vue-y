@@ -26,7 +26,7 @@ class Store<V> {
     return 'STORE/' + this.name;
   }
 
-  public initVueInstance (vue: VueConstructor) {
+  public _initVueInstance (vue: VueConstructor) {
     const instanceName = this.getStoreKey();
     const savedValue = this.loadSave();
     const state = savedValue || this.initialValue;
@@ -61,7 +61,7 @@ class Store<V> {
    */
   protected get (): V {
     if (this.vueInstance === undefined) {
-      throw new Error('Vuey incorrectly initialized')
+      throw new Error('Store not registered or vue-y not correctly initialized')
     }
     return cloneDeep(this.vueInstance.get);
   }
@@ -72,7 +72,7 @@ class Store<V> {
    */
   protected set (value: V): void {
     if (this.vueInstance === undefined) {
-      throw new Error('Vuey incorrectly initialized')
+      throw new Error('Store not registered or vue-y not correctly initialized')
     }
     this.vueInstance.set(value)
   }

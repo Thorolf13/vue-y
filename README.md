@@ -123,3 +123,12 @@ export default Vue.extend({
   }
 });
 ```
+
+### resetAll, clearAll
+
+resetAll and clearAll call each store reset or clear function if they exists
+
+```ts
+this.$vuey.resetAll();
+this.$vuey.clearAll();
+```

@@ -1,6 +1,6 @@
 {
-  "name": "vue-y",
-  "version": "1.0.0",
+  "name": "@thorolf/vue-y",
+  "version": "1.0.1",
   "description": "crossed state lib",
   "main": "dist/index.js",
   "files": [
@@ -40,6 +40,7 @@
     "url": "git+https://github.com/Thorolf13/vue-y.git"
   },
   "keywords": [
+    "vue",
     "vuejs",
     "store",
     "state"

@@ -14,10 +14,7 @@ export default {
     }
 
 
-    Vue.mixin({
-      data: () => ({
-        $vuey: storeManager
-      })
-    })
+    Vue.$vuey = storeManager;
+    Vue.prototype.$vuey = storeManager;
   }
 }
