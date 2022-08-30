@@ -1,5 +1,23 @@
+// import Vue from "vue";
 import { SaveStrategy } from "./lib/save-strategy-enum";
 import { Store } from "./lib/store";
-import { StoresDirectory } from "./lib/stores-directory";
+import { StoreManager } from "./lib/stores-manager";
 
-export { Store, SaveStrategy, StoresDirectory };
+export { Store, SaveStrategy };
+
+export default {
+  install (Vue: any, options: { stores: Store<any>[] }) {
+    const storeManager = new StoreManager(Vue);
+
+    for (const store of options.stores) {
+      storeManager.registerStore(store);
+    }
+
+
+    Vue.mixin({
+      data: () => ({
+        $vuey: storeManager
+      })
+    })
+  }
+}

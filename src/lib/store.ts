@@ -1,10 +1,7 @@
-import Vue from 'vue';
+import Vue, { VueConstructor } from 'vue';
 import { CombinedVueInstance } from 'vue/types/vue';
 import { cloneDeep } from './clone-deep';
 import { SaveStrategy } from './save-strategy-enum';
-
-const storeNames: string[] = []
-
 class Store<V> {
 
   private vueInstance: CombinedVueInstance<Vue, { state: V; }, { set (value: V): void; }, { get: V; }, Record<never, any>, {}>;
@@ -23,26 +20,19 @@ class Store<V> {
     public readonly name: string,
     protected readonly initialValue: V,
     public readonly saveStrategy: SaveStrategy = SaveStrategy.NONE
-  ) {
-    if (storeNames.includes(name)) {
-      throw new Error(`Store name ${name} is already used`);
-    }
-    storeNames.push(name);
-
-    this.vueInstance = this.initVueInstance();
-  }
+  ) { }
 
   private getStoreKey (): string {
     return 'STORE/' + this.name;
   }
 
-  private initVueInstance () {
+  public initVueInstance (vue: VueConstructor) {
     const instanceName = this.getStoreKey();
     const savedValue = this.loadSave();
     const state = savedValue || this.initialValue;
     const saveCallback = () => this.save();
 
-    return new Vue({
+    this.vueInstance = new (vue)({
       name: instanceName,
       data: () => ({
         state: state // do not read or write directly, use get and set()
@@ -70,6 +60,9 @@ class Store<V> {
    * @returns {V} the current state
    */
   protected get (): V {
+    if (this.vueInstance === undefined) {
+      throw new Error('Vuey incorrectly initialized')
+    }
     return cloneDeep(this.vueInstance.get);
   }
 
@@ -78,7 +71,10 @@ class Store<V> {
    * @param value the value to be set
    */
   protected set (value: V): void {
-    this.vueInstance.set(cloneDeep(value));
+    if (this.vueInstance === undefined) {
+      throw new Error('Vuey incorrectly initialized')
+    }
+    this.vueInstance.set(value)
   }
 
   /**
@@ -120,56 +116,14 @@ class Store<V> {
   // getters and setters
   // #############################
 
-  private defaultGetters = {
+  public getters = {
     value: () => this.get()
   }
 
-  /**
-   * store getters
-   */
-  public getters = this.defaultGetters;
-
-  private defaultActions = {
+  public actions = {
     set: (value: V) => this.set(value),
     reset: () => this.reset(),
     clear: () => this.clear()
-  }
-
-  /**
-   * store actions
-   */
-  public actions = this.defaultActions;
-
-  /**
-   * extends default getters with customs ones
-   * @param getters the custom getters, override the default getters if same name
-   * @returns default getters and custom getters
-   * @example
-   * // state:string[]
-   * getters = store.extendsGetters({ length: () => this.get().length })
-   * // getters:{value:()=>string[], length:()=>number}
-   */
-  protected extendsGetters<Getters extends { [key: string]: () => any }> (getters: Getters): Store<V>['defaultGetters'] & Getters {
-    return {
-      ...this.defaultGetters,
-      ...getters
-    };
-  }
-
-  /**
-   * extends default actions with customs ones
-   * @param actions the custom actions, override the default actions if same name
-   * @returns default actions and custom actions
-   * @example
-   * // state:string[]
-   * actions = store.extendsActions({ add: (value:string) => {state = this.get(); state.push(value); this.set(state); })
-   * // actions:{set:(string[])=>void, reset:()=>void, clear:()=>void, add:(value:string)=>void}
-   */
-  protected extendsActions<Actions extends { [key: string]: (value?: any) => any }> (actions: Actions): Store<V>['defaultActions'] & Actions {
-    return {
-      ...this.defaultActions,
-      ...actions
-    };
   }
 
   // #############################
@@ -181,7 +135,7 @@ class Store<V> {
       return;
     }
 
-    const state = this.vueInstance.state;
+    const state = this.get();
     const serializedState = this.serialize(state);
 
     if (this.saveStrategy === SaveStrategy.SESSION) {
